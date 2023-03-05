@@ -1,0 +1,1 @@
+..\out\msvc\Win32\Debug\2c --help >2c.txt

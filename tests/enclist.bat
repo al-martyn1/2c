@@ -1,0 +1,1 @@
+..\out\msvc\Win32\Debug\2c --list-encodings >enclist.txt
