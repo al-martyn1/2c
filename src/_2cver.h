@@ -1,4 +1,4 @@
-std::string _2cVersion    = "1.01";
+std::string _2cVersion    = "1.02";
 std::string _2cCommitHash;  //UNDONE
 std::string _2cBuildDate  = __DATE__;
 std::string _2cBuildTime  = __TIME__;
