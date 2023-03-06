@@ -199,7 +199,22 @@ void xorDecrypt(IteratorType iterBegin, IteratorType iterEnd, EKeySize ks, unsig
 
 //----------------------------------------------------------------------------
 inline
-unsigned xorEncryptionSeedFromString(EKeySize ksz, const std::string &str, bool *pValid = 0)
+std::mt19937 xorEncryptionGetRandomGenerator()
+{
+    #if defined(WIN32) || defined(_WIN32)
+
+        return std::mt19937((unsigned)GetTickCount());
+    
+    #else
+
+       // std::mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+       return std::mt19937((unsigned)std::time());
+    
+    #endif
+}
+
+inline
+unsigned xorEncryptionSeedFromString(EKeySize ksz, const std::string &str, std::mt19937 &rng, bool *pValid = 0)
 {
     if (str.empty())
     {
@@ -214,22 +229,7 @@ unsigned xorEncryptionSeedFromString(EKeySize ksz, const std::string &str, bool 
 
     if (ekSeed==EKeySeed::Random)
     {
-        // std::mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
-        // std::mt19937 rng((unsigned)std::time());
-
-        #if defined(WIN32) || defined(_WIN32)
-
-            std::mt19937 rng((unsigned)GetTickCount());
-       
-        #else
-
-           // std::mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
-           std::mt19937 rng((unsigned)std::time());
-       
-        #endif
-
         key = (unsigned)rng();
-    
     }
     else
     {
@@ -258,7 +258,7 @@ unsigned xorEncryptionSeedFromString(EKeySize ksz, const std::string &str, bool 
 
 //----------------------------------------------------------------------------
 inline
-EKeySize xorEncryptionKeySizeFromString(const std::string &str /* , bool *pValid = 0 */ )
+EKeySize xorEncryptionKeySizeFromString(const std::string &str, std::mt19937 &rng /* , bool *pValid = 0 */ )
 {
     if (str.empty())
     {
@@ -279,19 +279,7 @@ EKeySize xorEncryptionKeySizeFromString(const std::string &str /* , bool *pValid
     }
 
 
-    unsigned uesz = 0;
-    #if defined(WIN32) || defined(_WIN32)
-
-        std::mt19937 rng((unsigned)GetTickCount());
-    
-    #else
-
-       // std::mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
-       std::mt19937 rng((unsigned)std::time());
-    
-    #endif
-
-    uesz = (unsigned)rng();
+    unsigned uesz = (unsigned)rng();
     uesz = uesz%3;
 
     switch(uesz)

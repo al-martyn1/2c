@@ -18,6 +18,11 @@
 
 #include "logoptions.h"
 
+#if defined(WIN32) || defined(_WIN32)
+    #include <windows.h>
+#endif
+
+
 
 umba::StdStreamCharWriter coutWriter(std::cout);
 umba::StdStreamCharWriter cerrWriter(std::cerr);
@@ -389,7 +394,9 @@ int parseArg( std::string a, ICommandLineOptionCollector *pCol, bool fBuiltin, b
             }
 
             // _2c::EKeySize ks = _2c::enum_deserialize(xorOptionsVec[0], _2c::EKeySize::Unknown);
-            _2c::EKeySize ksz = _2c::xorEncryptionKeySizeFromString(xorOptionsVec[0]);
+            std::mt19937 rng = _2c::xorEncryptionGetRandomGenerator();
+
+            _2c::EKeySize ksz = _2c::xorEncryptionKeySizeFromString(xorOptionsVec[0], rng);
             if (ksz==_2c::EKeySize::Unknown)
             {
                 LOG_ERR_OPT<<"XOR encryption option - invalid KeySize value (--xor=KeySize[,Seed[,Inc]])"<<"\n";
@@ -417,7 +424,7 @@ int parseArg( std::string a, ICommandLineOptionCollector *pCol, bool fBuiltin, b
                     xorOptionsVec.push_back("0");
 
                 bool bValid = false;
-                xorEncSeed = xorEncryptionSeedFromString(ksz, xorOptionsVec[1], &bValid);
+                xorEncSeed = _2c::xorEncryptionSeedFromString(ksz, xorOptionsVec[1], rng, &bValid);
                 if (!bValid)
                 {
                     LOG_ERR_OPT<<"XOR encryption option - invalid seed value (--xor=KeySize[,Seed[,Inc]])"<<"\n";
@@ -425,7 +432,7 @@ int parseArg( std::string a, ICommandLineOptionCollector *pCol, bool fBuiltin, b
                 }
 
                 bValid = false;
-                xorEncInc = xorEncryptionSeedFromString(ksz, xorOptionsVec[2], &bValid);
+                xorEncInc = _2c::xorEncryptionSeedFromString(ksz, xorOptionsVec[2], rng, &bValid);
                 if (!bValid)
                 {
                     LOG_ERR_OPT<<"XOR encryption option - invalid key increment value (--xor=KeySize[,Seed[,Inc]])"<<"\n";
