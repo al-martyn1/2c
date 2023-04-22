@@ -104,6 +104,8 @@ std::string lastModified = "";
 bool addResourceFileName = false;
 std::string resourceFileName;
 
+bool addResourceFileSize = false;
+
 bool generateClass = false;
 std::string className;
 
@@ -276,6 +278,13 @@ int parseArg( std::string a, ICommandLineOptionCollector *pCol, bool fBuiltin, b
             if (hasHelpOption) return 0;
 
             outputAsString = false;
+        }
+        else if ( opt.isOption("size") // || opt.isOption('a') 
+               || opt.setDescription("Add resource size variable"))
+        {
+            if (hasHelpOption) return 0;
+
+            addResourceFileSize = true;
         }
         else if (opt.isOption("crlf") || opt.setDescription("Use CRLF as line separator"))
         {
@@ -499,7 +508,7 @@ int parseArg( std::string a, ICommandLineOptionCollector *pCol, bool fBuiltin, b
 
             nonConstArray = true;
         }
-        else if ( opt.setParam("SIZE", 16, 16, 120) || opt.setInitial(16) || opt.isOption("line-size") || opt.isOption('l') 
+        else if ( opt.setParam("SIZE", 16, 16, 160) || opt.setInitial(16) || opt.isOption("line-size") || opt.isOption('l') 
                || opt.setDescription("Set max line size or number of array items per line"))
         {
             if (hasHelpOption) return 0;
@@ -1310,6 +1319,23 @@ int main(int argc, char* argv[])
         os<<"\n";
         os<<staticConst<<"char* ";
         os<<cname<<"_orgsize = \""<<orgDataSize<<"\";\n";
+    }
+
+    if (addResourceFileSize)
+    {
+        unsigned rcSize = dataSize;
+
+        os<<"\n";
+        if (outputAsString)
+            --rcSize;
+
+        os<<staticConst<<"unsigned ";
+        os<<cname<<"_size = "<<cppHelpersFormatUnsigned( (unsigned)(rcSize), 10, false, 0 )<<";";
+
+        if (outputAsString)
+            os<<" /* Not including terminating zero */";
+
+        os<<"\n";
     }
 
     if (addResourceFileName)
